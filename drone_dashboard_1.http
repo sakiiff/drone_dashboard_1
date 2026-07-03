@@ -1,0 +1,6 @@
+@drone_dashboard_1_HostAddress = http://localhost:5211
+
+GET {{drone_dashboard_1_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
