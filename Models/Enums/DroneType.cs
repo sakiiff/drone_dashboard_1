@@ -2,7 +2,6 @@
 {
     public enum DroneType
     {
-        QuadCopter,
         HexaCopter,
         OctaCopter,
         OctaQuad,
@@ -10,6 +9,7 @@
         TriCopter,
         SingleCopter,
         CoaxCopter,
-        BiCopter
+        BiCopter,
+        Quadcopter
     }
 }

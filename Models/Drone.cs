@@ -10,7 +10,7 @@ namespace drone_dashboard_1.Models
         [Required]
         public string Name { get; set; } = string.Empty;
 
-        public DroneType DroneType { get; set; }
+        public DroneType DroneType { get; set; } = DroneType.Quadcopter;
 
         [Required]
         public string Manufacturer { get; set; } = string.Empty;
@@ -23,10 +23,10 @@ namespace drone_dashboard_1.Models
 
         [Required]
         public string FirmwareVersion { get; set; } = string.Empty;
-        public DroneStatus CurrentStatus { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public bool isActive { get; set; }
+        public DroneStatus CurrentStatus { get; set; } = DroneStatus.Disconnected;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public bool IsActive { get; set; }
 
     }
 }
