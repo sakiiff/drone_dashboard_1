@@ -11,5 +11,18 @@ namespace drone_dashboard_1.Data
         }
 
         public DbSet<Drone> Drones { get; set; }
+        public DbSet<Flight> Flights { get; set; }
+        public DbSet<Telemetry> Telemetries { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Telemetry>()
+                .HasIndex(t => new { t.FlightId, t.Timestamp });
+
+            modelBuilder.Entity<Flight>()
+                .HasIndex(d => new { d.DroneId }); 
+        }
     }
 }

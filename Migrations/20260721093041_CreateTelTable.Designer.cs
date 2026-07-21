@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using drone_dashboard_1.Data;
@@ -11,9 +12,11 @@ using drone_dashboard_1.Data;
 namespace drone_dashboard_1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260721093041_CreateTelTable")]
+    partial class CreateTelTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,7 +70,7 @@ namespace drone_dashboard_1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Drones", (string)null);
+                    b.ToTable("Drones");
                 });
 
             modelBuilder.Entity("drone_dashboard_1.Models.Flight", b =>
@@ -112,7 +115,7 @@ namespace drone_dashboard_1.Migrations
 
                     b.HasIndex("DroneId");
 
-                    b.ToTable("Flights", (string)null);
+                    b.ToTable("Flights");
                 });
 
             modelBuilder.Entity("drone_dashboard_1.Models.Telemetry", b =>
@@ -144,8 +147,8 @@ namespace drone_dashboard_1.Migrations
                     b.Property<int>("FlightMode")
                         .HasColumnType("integer");
 
-                    b.Property<int>("GpsFixType")
-                        .HasColumnType("integer");
+                    b.Property<decimal>("GpsFixType")
+                        .HasColumnType("numeric(20,0)");
 
                     b.Property<double>("HeadingDegrees")
                         .HasColumnType("double precision");
@@ -182,9 +185,9 @@ namespace drone_dashboard_1.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FlightId", "Timestamp");
+                    b.HasIndex("FlightId");
 
-                    b.ToTable("Telemetries", (string)null);
+                    b.ToTable("Telemetries");
                 });
 
             modelBuilder.Entity("drone_dashboard_1.Models.Flight", b =>

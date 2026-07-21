@@ -28,5 +28,6 @@ namespace drone_dashboard_1.Models
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; } = true;
 
+        public ICollection<Flight> Flights { get; set; } = new List<Flight>();
     }
 }

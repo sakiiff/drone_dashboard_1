@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using drone_dashboard_1.Data;
@@ -11,9 +12,11 @@ using drone_dashboard_1.Data;
 namespace drone_dashboard_1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260716091413_AddFlightTable")]
+    partial class AddFlightTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,7 +70,7 @@ namespace drone_dashboard_1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Drones", (string)null);
+                    b.ToTable("Drones");
                 });
 
             modelBuilder.Entity("drone_dashboard_1.Models.Flight", b =>
@@ -96,7 +99,7 @@ namespace drone_dashboard_1.Migrations
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<double>("MaxAltitudeMeters")
+                    b.Property<double>("MaxAltitude")
                         .HasColumnType("double precision");
 
                     b.Property<double>("MaxSpeedMetersPerSecond")
@@ -112,79 +115,7 @@ namespace drone_dashboard_1.Migrations
 
                     b.HasIndex("DroneId");
 
-                    b.ToTable("Flights", (string)null);
-                });
-
-            modelBuilder.Entity("drone_dashboard_1.Models.Telemetry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<double>("AltitudeMeters")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("BatteryPercentage")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("BatteryVoltage")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("CurrentAmps")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("DistanceFromHomeMeters")
-                        .HasColumnType("double precision");
-
-                    b.Property<int>("FlightId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("FlightMode")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("GpsFixType")
-                        .HasColumnType("integer");
-
-                    b.Property<double>("HeadingDegrees")
-                        .HasColumnType("double precision");
-
-                    b.Property<bool>("IsArmed")
-                        .HasColumnType("boolean");
-
-                    b.Property<double>("Latitude")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("Longitude")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("PitchDegrees")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("RollDegrees")
-                        .HasColumnType("double precision");
-
-                    b.Property<int>("SatelliteCount")
-                        .HasColumnType("integer");
-
-                    b.Property<double>("SpeedMetersPerSecond")
-                        .HasColumnType("double precision");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<double>("VerticalSpeedMetersPerSecond")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("YawDegrees")
-                        .HasColumnType("double precision");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FlightId", "Timestamp");
-
-                    b.ToTable("Telemetries", (string)null);
+                    b.ToTable("Flights");
                 });
 
             modelBuilder.Entity("drone_dashboard_1.Models.Flight", b =>
@@ -196,17 +127,6 @@ namespace drone_dashboard_1.Migrations
                         .IsRequired();
 
                     b.Navigation("Drone");
-                });
-
-            modelBuilder.Entity("drone_dashboard_1.Models.Telemetry", b =>
-                {
-                    b.HasOne("drone_dashboard_1.Models.Flight", "Flight")
-                        .WithMany()
-                        .HasForeignKey("FlightId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Flight");
                 });
 
             modelBuilder.Entity("drone_dashboard_1.Models.Drone", b =>

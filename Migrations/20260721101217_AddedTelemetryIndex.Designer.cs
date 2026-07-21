@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using drone_dashboard_1.Data;
@@ -11,9 +12,11 @@ using drone_dashboard_1.Data;
 namespace drone_dashboard_1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260721101217_AddedTelemetryIndex")]
+    partial class AddedTelemetryIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,7 +70,7 @@ namespace drone_dashboard_1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Drones", (string)null);
+                    b.ToTable("Drones");
                 });
 
             modelBuilder.Entity("drone_dashboard_1.Models.Flight", b =>
@@ -112,7 +115,7 @@ namespace drone_dashboard_1.Migrations
 
                     b.HasIndex("DroneId");
 
-                    b.ToTable("Flights", (string)null);
+                    b.ToTable("Flights");
                 });
 
             modelBuilder.Entity("drone_dashboard_1.Models.Telemetry", b =>
@@ -184,7 +187,7 @@ namespace drone_dashboard_1.Migrations
 
                     b.HasIndex("FlightId", "Timestamp");
 
-                    b.ToTable("Telemetries", (string)null);
+                    b.ToTable("Telemetries");
                 });
 
             modelBuilder.Entity("drone_dashboard_1.Models.Flight", b =>
