@@ -70,7 +70,7 @@ namespace drone_dashboard_1.Services
                 }).ToListAsync();
         }
 
-        public async Task<DroneResponseDTO?> GetDronesById(int Id)
+        public async Task<DroneResponseDTO?> GetDroneById(int Id)
         {
             var drone = await _context.Drones.FindAsync(Id);
             if (drone == null) return null;

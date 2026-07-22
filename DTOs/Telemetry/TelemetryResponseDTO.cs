@@ -1,10 +1,12 @@
-﻿using drone_dashboard_1.Models.Enums;
+﻿using drone_dashboard_1.Models;
+using drone_dashboard_1.Models.Enums;
 
 namespace drone_dashboard_1.DTOs.Telemetry
 {
     public class TelemetryResponseDTO
     {
         public int Id { get; set; }
+        public string DroneName { get; set; } = string.Empty;
         public int FlightId { get; set; }
         public DateTime Timestamp { get; set; }
 

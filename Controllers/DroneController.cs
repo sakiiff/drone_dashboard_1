@@ -11,14 +11,14 @@ namespace drone_dashboard_1.Controllers
     {
         private readonly IDroneService _droneService;
 
-        public DroneController(IDroneService service)
+        public DroneController(IDroneService droneService)
         {
-            _droneService = service;
+            _droneService = droneService;
         }
 
         //Fetch current all active drones
         [HttpGet]
-        public async Task<IActionResult> GetDrones()
+        public async Task<ActionResult<IEnumerable<DroneResponseDTO>>> GetDrones()
         {
             var drones = await _droneService.GetDrones();
             return Ok(drones);
@@ -26,10 +26,12 @@ namespace drone_dashboard_1.Controllers
 
         //Fetch drones by Id
         [HttpGet("{Id}")]
-        public async Task<ActionResult<DroneResponseDTO>> GetDronesById(int Id)
+        public async Task<ActionResult<DroneResponseDTO>> GetDroneById(int Id)
         {
-            var dto = await _droneService.GetDronesById(Id);
-            if (dto == null) return NotFound();
+            var dto = await _droneService.GetDroneById(Id);
+            if (dto == null) 
+                return NotFound();
+
             return Ok(dto);
         }
 
@@ -38,21 +40,21 @@ namespace drone_dashboard_1.Controllers
         public async Task<ActionResult<DroneResponseDTO>> CreateDrone(CreateDroneDTO dto)
         {
             var created = await _droneService.CreateDrone(dto);
-            return CreatedAtAction(nameof(GetDronesById), new { Id = created.Id }, created);
+            return CreatedAtAction(nameof(GetDroneById), new { Id = created.Id }, created);
         }
 
-        [HttpPut("{Id}")]
-        public async Task<ActionResult<DroneResponseDTO>> UpdateDrone(int Id, UpdateDroneDTO dto)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<DroneResponseDTO>> UpdateDrone(int id, UpdateDroneDTO dto)
         {
-            var updated = await _droneService.UpdateDrone(Id, dto);
+            var updated = await _droneService.UpdateDrone(id, dto);
             if (updated == null) return NotFound();
             return Ok(updated);
         }
 
-        [HttpDelete("{Id}")]
-        public async Task<ActionResult> DeleteDrone(int Id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteDrone(int id)
         {
-            var ok = await _droneService.DeleteDrone(Id);
+            var ok = await _droneService.DeleteDrone(id);
             if (!ok) return NotFound();
             return NoContent();
         }
