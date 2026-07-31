@@ -5,7 +5,7 @@
 namespace drone_dashboard_1.Migrations
 {
     /// <inheritdoc />
-    public partial class fixedtypo : Migration
+    public partial class fixedTypo : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

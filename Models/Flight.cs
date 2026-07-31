@@ -15,7 +15,7 @@ namespace drone_dashboard_1.Models
         public double MaxSpeedMetersPerSecond { get; set; }
         public double BatteryStartPercentage { get; set; }
         public double BatteryEndPercentage { get; set; }
-        public FlightStatus Status { get; set; } = FlightStatus.InProgress;
+        public FlightStatus Status { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

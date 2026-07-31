@@ -7,7 +7,7 @@ namespace drone_dashboard_1.Services.Interfaces
         Task<IEnumerable<DroneResponseDTO>> GetDrones();
         Task<DroneResponseDTO?> GetDroneById(int Id);
         Task<DroneResponseDTO> CreateDrone(CreateDroneDTO dto);
-        Task<DroneResponseDTO?> UpdateDrone(int Id, UpdateDroneDTO dto);
+        Task<DroneResponseDTO> UpdateDrone(int Id, UpdateDroneDTO dto);
         Task<bool> DeleteDrone(int Id);
     }
 }

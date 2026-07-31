@@ -1,5 +1,6 @@
 ﻿using drone_dashboard_1.Data;
 using drone_dashboard_1.DTOs.Flights;
+using drone_dashboard_1.Exceptions;
 using drone_dashboard_1.Models;
 using drone_dashboard_1.Models.Enums;
 using drone_dashboard_1.Services.Interfaces;
@@ -38,7 +39,13 @@ namespace drone_dashboard_1.Services
                 .FirstOrDefaultAsync(f => f.Id == id);
 
             if (flight == null)
-                return null;
+            {
+                throw new BusinessException(
+                    ErrorCodes.FlightNotFound,
+                    "Flight not found.",
+                    StatusCodes.Status404NotFound);
+            }
+                
 
             return new FlightResponseDTO
             {
@@ -62,6 +69,28 @@ namespace drone_dashboard_1.Services
 
         public async Task<FlightResponseDTO> CreateFlight(CreateFlightDTO dto)
         {
+            var activeFlight = await _context.Flights.AnyAsync(f =>
+                f.DroneId == dto.DroneId &&
+                f.Status == FlightStatus.InProgress);
+
+            if (activeFlight)
+            {
+                throw new BusinessException(
+                    ErrorCodes.FlightAlreadyInProgress,
+                    "Drone already has an active flight",
+                    StatusCodes.Status409Conflict);
+            }
+
+            var drone = await _context.Drones.FindAsync(dto.DroneId);
+
+            if(drone == null || !drone.IsActive)
+            {
+                throw new BusinessException(
+                    ErrorCodes.DroneNotFound,
+                    "Drone not found",
+                    StatusCodes.Status404NotFound);
+            }
+
             var flight = new Flight
             {
                 DroneId = dto.DroneId,
@@ -85,23 +114,44 @@ namespace drone_dashboard_1.Services
             };
         }
 
-        public async Task<bool> EndFlight(int id, EndFlightDTO dto)
+        public async Task<EndFlightDTO> EndFlight(int id, EndFlightDTO dto)
         {
             var flight = await _context.Flights.FindAsync(id);
+            var endTime = DateTime.UtcNow;
 
             if (flight == null)
-                return false;
+            {
+                throw new BusinessException(
+                    ErrorCodes.FlightNotFound,
+                    "Flight not found",
+                    StatusCodes.Status404NotFound);
+            }
 
-            flight.EndTime = DateTime.UtcNow;
+            if (flight.Status == FlightStatus.Completed)
+            {
+                throw new BusinessException(
+                    ErrorCodes.FlightAlreadyCompleted,
+                    "Flight already completed",
+                    StatusCodes.Status409Conflict);
+            }
+
+            flight.EndTime = endTime;
             flight.BatteryEndPercentage = dto.BatteryEndPercentage;
             flight.DistanceTravelledMeters = dto.DistanceTravelledMeters;
             flight.MaxAltitudeMeters = dto.MaxAltitudeMeters;
             flight.MaxSpeedMetersPerSecond = dto.MaxSpeedMetersPerSecond;
-
             flight.Status = FlightStatus.Completed;
 
             await _context.SaveChangesAsync();
-            return true;
+
+            return new EndFlightDTO
+            {
+                EndTime = endTime,
+                BatteryEndPercentage = flight.BatteryEndPercentage,
+                DistanceTravelledMeters = flight.DistanceTravelledMeters,
+                MaxAltitudeMeters = flight.MaxAltitudeMeters,
+                MaxSpeedMetersPerSecond = flight.MaxSpeedMetersPerSecond
+            };
         }
     }
 }

@@ -13,7 +13,7 @@ namespace drone_dashboard_1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20260721080925_fixedtypo")]
-    partial class fixedtypo
+    partial class fixedTypo
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

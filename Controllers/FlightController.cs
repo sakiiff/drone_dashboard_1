@@ -54,7 +54,7 @@ namespace drone_dashboard_1.Controllers
         {
             var result = await _flightService.EndFlight(id, dto);
 
-            if (!result)
+            if (result == null)
                 return NotFound();
 
             return Ok(result);

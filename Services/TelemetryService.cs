@@ -3,6 +3,7 @@ using drone_dashboard_1.DTOs.Telemetry;
 using drone_dashboard_1.Models;
 using drone_dashboard_1.Models.Enums;
 using drone_dashboard_1.Services.Interfaces;
+using drone_dashboard_1.Exceptions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,54 +20,88 @@ namespace drone_dashboard_1.Services
 
         public async Task<TelemetryResponseDTO> CreateTelemetry(CreateTelemetryDTO dto)
         {
-            var flightExists = await _context.Flights.AnyAsync(f => f.Id == dto.FlightId);
+            // Check if the flight exists
+            var flight = await _context.Flights.FindAsync(dto.FlightId);
 
-            if (!flightExists)
+            if (flight == null)
             {
-                throw new Exception("Flight not found.");
+                throw new BusinessException(
+                    ErrorCodes.FlightNotFound,
+                    "Flight not found.",
+                    StatusCodes.Status404NotFound);
             }
 
-            var telemetries = new Telemetry
+            // Check if the flight has already ended
+            if (flight.Status == FlightStatus.Completed)
+            {
+                throw new BusinessException(
+                    ErrorCodes.TelemetryFlightCompleted,
+                    "Cannot add telemetry to a completed flight.",
+                    StatusCodes.Status409Conflict);
+            }
+
+            var telemetry = new Telemetry
             {
                 FlightId = dto.FlightId,
                 Timestamp = dto.Timestamp == default
                     ? DateTime.UtcNow
                     : dto.Timestamp,
+
                 Longitude = dto.Longitude,
                 Latitude = dto.Latitude,
                 AltitudeMeters = dto.AltitudeMeters,
                 SpeedMetersPerSecond = dto.SpeedMetersPerSecond,
                 VerticalSpeedMetersPerSecond = dto.VerticalSpeedMetersPerSecond,
+
                 HeadingDegrees = dto.HeadingDegrees,
                 PitchDegrees = dto.PitchDegrees,
-                YawDegrees = dto.YawDegrees,
                 RollDegrees = dto.RollDegrees,
+                YawDegrees = dto.YawDegrees,
+
                 BatteryPercentage = dto.BatteryPercentage,
                 BatteryVoltage = dto.BatteryVoltage,
                 CurrentAmps = dto.CurrentAmps,
+
                 SatelliteCount = dto.SatelliteCount,
                 GpsFixType = dto.GpsFixType,
                 IsArmed = dto.IsArmed,
                 FlightMode = dto.FlightMode
-            };                
+            };
 
-            _context.Telemetries.Add(telemetries);
-
+            _context.Telemetries.Add(telemetry);
             await _context.SaveChangesAsync();
 
             return new TelemetryResponseDTO
             {
-                FlightId = telemetries.FlightId,
-                Timestamp = telemetries.Timestamp,
-                Longitude = telemetries.Longitude,
-                Latitude = telemetries.Latitude,
-                AltitudeMeters = telemetries.AltitudeMeters,
-                BatteryPercentage = telemetries.BatteryPercentage
+                Id = telemetry.Id,
+                FlightId = telemetry.FlightId,
+                Timestamp = telemetry.Timestamp,
+                Longitude = telemetry.Longitude,
+                Latitude = telemetry.Latitude,
+                AltitudeMeters = telemetry.AltitudeMeters,
+                SpeedMetersPerSecond = telemetry.SpeedMetersPerSecond,
+                VerticalSpeedMetersPerSecond = telemetry.VerticalSpeedMetersPerSecond,
+                BatteryPercentage = telemetry.BatteryPercentage,
+                BatteryVoltage = telemetry.BatteryVoltage,
+                CurrentAmps = telemetry.CurrentAmps,
+                SatelliteCount = telemetry.SatelliteCount,
+                GpsFixType = telemetry.GpsFixType,
+                IsArmed = telemetry.IsArmed,
+                FlightMode = telemetry.FlightMode
             };
         }
 
         public async Task<TelemetryResponseDTO?> GetLatestTelemetry(int droneId)
         {
+            var droneExists = await _context.Drones.AnyAsync(d => d.Id == droneId);
+            if (!droneExists)  
+            {
+                throw new BusinessException(
+                    ErrorCodes.TelemetryDroneReferencedNotFound,
+                    "Referenced drone not found",
+                    StatusCodes.Status404NotFound);
+            }
+
             var telemetries = await _context.Telemetries
                 .Include(t => t.Flight)
                 .ThenInclude(f => f.Drone)
@@ -101,6 +136,24 @@ namespace drone_dashboard_1.Services
 
         public async Task<IEnumerable<TelemetryResponseDTO>> GetTelemetryHistory(int flightId, int pageSize, DateTime start, DateTime end)
         {
+            var flightExist = await _context.Flights.AnyAsync(d => d.Id == flightId); 
+
+            if (!flightExist)
+            {
+                throw new BusinessException(
+                    ErrorCodes.TelemetryFlightNotFound,
+                    "Flight does not exist",
+                    StatusCodes.Status404NotFound);
+            }
+
+            if (end <= start)
+            {
+                throw new BusinessException(
+                    ErrorCodes.TelemetryTimestampError,
+                    "End time must be after Start time!",
+                    StatusCodes.Status409Conflict);
+            }
+
             return await _context.Telemetries
                 .Where(t => t.FlightId == flightId
                     && t.Timestamp >= start

@@ -1,4 +1,5 @@
 using drone_dashboard_1.Data;
+using drone_dashboard_1.Exceptions;
 using drone_dashboard_1.Services;
 using drone_dashboard_1.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddScoped<IFlightService, FlightService>();
 builder.Services.AddScoped<IDroneService, DroneService>();
+builder.Services.AddScoped<ITelemetryService, TelemetryService>();
 
 
 // DbContext
@@ -22,6 +24,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseMiddleware<GlobalExceptionHandler>();
+
 // Configure HTTP pipeline
 if (app.Environment.IsDevelopment())
 {
@@ -30,6 +34,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 
 app.UseAuthorization();
 

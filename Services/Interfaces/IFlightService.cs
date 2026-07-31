@@ -7,6 +7,6 @@ namespace drone_dashboard_1.Services.Interfaces
         Task<IEnumerable<FlightResponseDTO>> GetFlights();
         Task<FlightResponseDTO?> GetFlightById(int id);
         Task<FlightResponseDTO> CreateFlight(CreateFlightDTO dto);
-        Task<bool> EndFlight(int id, EndFlightDTO dto);
+        Task<EndFlightDTO> EndFlight(int id, EndFlightDTO dto);
     }
 }

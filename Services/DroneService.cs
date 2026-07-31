@@ -3,6 +3,7 @@ using drone_dashboard_1.DTOs.Drones;
 using drone_dashboard_1.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using drone_dashboard_1.Exceptions;
 
 namespace drone_dashboard_1.Services
 {
@@ -17,6 +18,17 @@ namespace drone_dashboard_1.Services
 
         public async Task<DroneResponseDTO> CreateDrone(CreateDroneDTO dto)
         {
+
+            var exists = await _context.Drones.AnyAsync(e => e.SerialNumber == dto.SerialNumber);
+
+            if (exists)
+            {
+                throw new BusinessException(
+                    ErrorCodes.DuplicateSerialNumber,
+                    "Serial Number already existed!",
+                    StatusCodes.Status409Conflict);
+            }
+
             var drone = new Models.Drone
             {
                 Name = dto.Name,
@@ -47,7 +59,21 @@ namespace drone_dashboard_1.Services
         public async Task<bool> DeleteDrone(int Id)
         {
             var drone = await _context.Drones.FindAsync(Id);
-            if (drone == null) return false;
+            if (drone == null)
+            {
+                throw new BusinessException(
+                    ErrorCodes.DroneNotFound,
+                    "Drone not found",
+                    StatusCodes.Status404NotFound);
+            }
+
+            if (drone.IsActive == false)
+            {
+                throw new BusinessException(
+                    ErrorCodes.DroneInactive,
+                    "Drone already inactive.",
+                    StatusCodes.Status409Conflict);
+            }
 
             drone.IsActive = false;
             await _context.SaveChangesAsync();
@@ -73,7 +99,13 @@ namespace drone_dashboard_1.Services
         public async Task<DroneResponseDTO?> GetDroneById(int Id)
         {
             var drone = await _context.Drones.FindAsync(Id);
-            if (drone == null) return null;
+            if (drone == null)
+            {
+                throw new BusinessException(
+                    ErrorCodes.DroneNotFound,
+                    "Drone not found.",
+                    StatusCodes.Status404NotFound);
+            }
 
             return new DroneResponseDTO
             {
@@ -87,10 +119,16 @@ namespace drone_dashboard_1.Services
             };
         }
 
-        public async Task<DroneResponseDTO?> UpdateDrone(int Id, UpdateDroneDTO dto)
+        public async Task<DroneResponseDTO> UpdateDrone(int Id, UpdateDroneDTO dto)
         {
             var drone = await _context.Drones.FindAsync(Id);
-            if (drone == null) return null;
+            if (drone == null)
+            {
+                throw new BusinessException(
+                    ErrorCodes.DroneNotFound,
+                    "Drone not found.",
+                    StatusCodes.Status404NotFound);
+            }
 
             drone.Name = dto.Name;
             drone.Manufacturer = dto.Manufacturer;

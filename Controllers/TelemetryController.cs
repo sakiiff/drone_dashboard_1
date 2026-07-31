@@ -20,6 +20,9 @@ namespace drone_dashboard_1.Controllers
         {
             var telemetry = await _telemetryService.CreateTelemetry(dto);
 
+            if (telemetry == null)
+                return NotFound();
+
             return Created(string.Empty, telemetry);
         }
 
