@@ -1,5 +1,6 @@
 using drone_dashboard_1.Data;
 using drone_dashboard_1.Exceptions;
+using drone_dashboard_1.Hubs;
 using drone_dashboard_1.Services;
 using drone_dashboard_1.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 builder.Services.AddScoped<IFlightService, FlightService>();
 builder.Services.AddScoped<IDroneService, DroneService>();
 builder.Services.AddScoped<ITelemetryService, TelemetryService>();
@@ -39,5 +41,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<TelemetryHub>("/telemetry");
 
 app.Run();

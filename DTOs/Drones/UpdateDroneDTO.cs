@@ -8,5 +8,6 @@ namespace drone_dashboard_1.DTOs.Drones
         public string Manufacturer { get; set; } = string.Empty;
         public string Model { get; set; } = string.Empty;
         public string FirmwareVersion { get; set; } = string.Empty;
+        public DateTime UpdatedAt { get; set; }
     }
 }
