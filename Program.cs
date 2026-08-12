@@ -3,6 +3,7 @@ using drone_dashboard_1.Exceptions;
 using drone_dashboard_1.Hubs;
 using drone_dashboard_1.Services;
 using drone_dashboard_1.Services.Interfaces;
+using drone_dashboard_1.Services.Mavlink;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +14,7 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped<IFlightService, FlightService>();
 builder.Services.AddScoped<IDroneService, DroneService>();
 builder.Services.AddScoped<ITelemetryService, TelemetryService>();
-
+builder.Services.AddHostedService<MavlinkListenerService>();
 
 // DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -41,6 +42,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<TelemetryHub>("/telemetry");
+app.MapHub<TelemetryHub>("/telemetryHub");
+app.MapHub<FlightHub>("/flightHub");
+app.MapHub<DroneHub>("/droneHub");
 
 app.Run();

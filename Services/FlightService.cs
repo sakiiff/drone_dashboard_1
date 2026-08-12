@@ -56,21 +56,6 @@ namespace drone_dashboard_1.Services
             return flight;
         }
 
-        public async Task<Drone> ValidateDroneId(int id)
-        {
-            var drone = await _context.Drones.FindAsync(id);
-
-            if (drone == null)
-            {
-                throw new BusinessException(
-                    ErrorCodes.DroneNotFound,
-                    "Drone not found",
-                    StatusCodes.Status404NotFound);
-            }
-
-            return drone;
-        }
-
         public async Task<Drone> ValidateFlightWithDroneActive(int id)
         {
             var activeFlight = await _context.Flights.AnyAsync(f => 
@@ -133,14 +118,22 @@ namespace drone_dashboard_1.Services
 
             await _context.SaveChangesAsync();
 
-            flight.Drone = drone; 
+            flight.Drone = drone;
 
-            return flight.ToResponseDto();
+            var responseDto = flight.ToResponseDto();
+
+            await _hubContext.Clients
+                .Group($"drone-{drone.Id}")
+                .SendAsync(
+                "FlightStarted",
+                responseDto);
+
+            return responseDto;
         }
 
         public async Task<EndFlightDTO> EndFlight(int id, EndFlightDTO dto)
         {
-            var flight = await ValidateFlightId(id);
+            var flight = await ValidateFlightWithDrone(id);
 
             if (flight.Status == FlightStatus.Completed)
             {
@@ -159,7 +152,13 @@ namespace drone_dashboard_1.Services
 
             await _context.SaveChangesAsync();
 
-            return flight.ToEndFlightDto();
+            await _hubContext.Clients
+                .Group($"drone-{flight.DroneId}")
+                .SendAsync(
+                "FlightEnded",
+                flight.ToResponseDto());
+
+            return dto;
         }
     }
 }

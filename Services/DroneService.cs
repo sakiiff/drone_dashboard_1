@@ -126,6 +126,12 @@ namespace drone_dashboard_1.Services
 
             var responseDto = drone.ToResponseDTO();
 
+            await _hubContext.Clients
+                .Group($"drone-{drone.Id}")
+                .SendAsync(
+                "UpdateDrone",
+                responseDto);
+
             return responseDto;
         }
     }

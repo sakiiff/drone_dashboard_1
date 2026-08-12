@@ -1,13 +1,13 @@
 ﻿using drone_dashboard_1.Data;
 using drone_dashboard_1.DTOs.Telemetry;
+using drone_dashboard_1.Exceptions;
+using drone_dashboard_1.Hubs;
+using drone_dashboard_1.Mappers.Telemetry;
 using drone_dashboard_1.Models;
 using drone_dashboard_1.Models.Enums;
 using drone_dashboard_1.Services.Interfaces;
-using drone_dashboard_1.Exceptions;
-using Microsoft.EntityFrameworkCore;
-using drone_dashboard_1.Hubs;
-using drone_dashboard_1.Mappers.Telemetry;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 namespace drone_dashboard_1.Services
 {
@@ -58,8 +58,12 @@ namespace drone_dashboard_1.Services
 
             var responseDto = telemetry.ToResponseDTO(flight.Drone?.Name);
 
-            await _hubContext.Clients.All.SendAsync(
-                "ReceiveTelemetry",
+            Console.WriteLine($"[Server] Broadcasting TelemetryUpdated to group: flight-{flight.Id}");
+
+            await _hubContext.Clients
+                .Group($"flight-{dto.FlightId}")
+                .SendAsync(
+                "TelemetryUpdated",
                 responseDto);
 
             return responseDto;
@@ -100,6 +104,12 @@ namespace drone_dashboard_1.Services
                     FlightMode = t.FlightMode
                 })
                 .FirstOrDefaultAsync();
+
+            await _hubContext.Clients
+                .Group($"drone-{droneId}")
+                .SendAsync(
+                "LatestTelemetry",
+                result);
 
             return result;
         }
@@ -142,7 +152,7 @@ namespace drone_dashboard_1.Services
                     IsArmed = t.IsArmed,
                     FlightMode = t.FlightMode
                 })
-                .ToListAsync(); 
+                .ToListAsync();
         }
     }
 }
